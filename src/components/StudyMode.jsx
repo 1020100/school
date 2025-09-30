@@ -65,9 +65,9 @@ const StudyMode = ({ facts, onComplete }) => {
                 bg-glass backdrop-blur-card border border-white/10 rounded-2xl shadow-2xl 
                 transition-opacity duration-300 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
                 <h2 className="text-sm font-bold uppercase text-accent-primary mb-4 tracking-widest">Режим обучения</h2>
-                <p className="text-2xl md:text-3xl font-light leading-relaxed text-blue-900 min-h-[150px] md:min-h-[200px]">
+                <p className="text-2xl md:text-3xl font-light leading-relaxed text-accent-primary min-h-[150px] md:min-h-[200px] [text-shadow:0_1px_2px_rgba(0,0,0,0.2)]">
                     {displayedText}
-                    {isAnimating && <span className="inline-block w-0.5 h-8 bg-blue-900/70 ml-1 animate-ping"></span>}
+                    {isAnimating && <span className="inline-block w-0.5 h-8 bg-accent-primary/70 ml-1 animate-ping"></span>}
                 </p>
                 <div className="mt-8">
                     <ProgressBar current={currentIndex} total={facts.length} />

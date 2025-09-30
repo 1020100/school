@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const ProgressBar = ({ current, total }) => {
   const progress = ((current + 1) / total) * 100;
   return (
-    <div className="w-full bg-white/20 rounded-full h-2">
+    <div className="w-full bg-gray-900/10 rounded-full h-2">
       <div className="bg-accent-primary h-2 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
     </div>
   );
@@ -65,13 +65,13 @@ const StudyMode = ({ facts, onComplete }) => {
                 bg-glass backdrop-blur-card border border-white/10 rounded-2xl shadow-2xl 
                 transition-opacity duration-300 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
                 <h2 className="text-sm font-bold uppercase text-accent-primary mb-4 tracking-widest">Режим обучения</h2>
-                <p className="text-2xl md:text-3xl font-light leading-relaxed text-white min-h-[150px] md:min-h-[200px]">
+                <p className="text-2xl md:text-3xl font-light leading-relaxed text-blue-900 min-h-[150px] md:min-h-[200px]">
                     {displayedText}
-                    {isAnimating && <span className="inline-block w-0.5 h-8 bg-white/70 ml-1 animate-ping"></span>}
+                    {isAnimating && <span className="inline-block w-0.5 h-8 bg-blue-900/70 ml-1 animate-ping"></span>}
                 </p>
                 <div className="mt-8">
                     <ProgressBar current={currentIndex} total={facts.length} />
-                    <div className="text-right text-white/70 mt-2 text-sm">
+                    <div className="text-right text-gray-700 mt-2 text-sm">
                         Факт {currentIndex + 1} из {facts.length}
                     </div>
                 </div>

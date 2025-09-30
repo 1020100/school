@@ -1,27 +1,42 @@
 import React, { useState, useEffect } from 'react';
 
+const ProgressBar = ({ current, total }) => {
+  const progress = ((current + 1) / total) * 100;
+  return (
+    <div className="w-full bg-white/20 rounded-full h-2">
+      <div className="bg-accent-primary h-2 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
+    </div>
+  );
+};
+
 const StudyMode = ({ facts, onComplete }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [displayedText, setDisplayedText] = useState('');
     const [isAnimating, setIsAnimating] = useState(true);
+    const [isFading, setIsFading] = useState(false);
 
     const currentFact = facts[currentIndex];
 
     useEffect(() => {
-        setIsAnimating(true);
-        setDisplayedText('');
-        let charIndex = 0;
-        const interval = setInterval(() => {
-            if (charIndex < currentFact.text.length) {
-                setDisplayedText(prev => prev + currentFact.text[charIndex]);
-                charIndex++;
-            } else {
-                setIsAnimating(false);
-                clearInterval(interval);
-            }
-        }, 20);
-        return () => clearInterval(interval);
-    }, [currentIndex, facts]);
+        setIsFading(true);
+        const fadeTimer = setTimeout(() => {
+            setIsAnimating(true);
+            setDisplayedText('');
+            let charIndex = 0;
+            const interval = setInterval(() => {
+                if (charIndex < currentFact.text.length) {
+                    setDisplayedText(prev => prev + currentFact.text[charIndex]);
+                    charIndex++;
+                } else {
+                    setIsAnimating(false);
+                    clearInterval(interval);
+                }
+            }, 25);
+            setIsFading(false);
+            return () => clearInterval(interval);
+        }, 300);
+        return () => clearTimeout(fadeTimer);
+    }, [currentIndex, facts, currentFact.text]);
 
     const handleNext = () => {
         if (isAnimating) {
@@ -38,18 +53,31 @@ const StudyMode = ({ facts, onComplete }) => {
 
     return (
         <div 
-            className="bg-white rounded-2xl shadow-2xl overflow-hidden cursor-pointer transform hover:scale-[1.02] transition-transform duration-500" 
+            className="relative min-h-screen w-full flex items-center justify-center p-4 -m-4 animate-fade-in cursor-pointer"
             onClick={handleNext}
         >
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="p-8 order-2 md:order-1">
-                    <h2 className="text-sm font-bold uppercase text-sky-500 mb-2">Режим Обучения</h2>
-                    <p className="text-2xl md:text-3xl font-light leading-relaxed min-h-[150px]">{displayedText}</p>
-                    <div className="text-slate-400 mt-8">Кликните в любом месте, чтобы продолжить...</div>
+            <div className="absolute inset-0 z-0 transition-all duration-500 ease-in-out" key={currentIndex}>
+                <img src={currentFact.image} className="w-full h-full object-cover" alt="background" />
+                <div className="absolute inset-0 bg-black/50"></div>
+            </div>
+            
+            <div className={`relative z-10 w-full max-w-3xl mx-auto p-8 md:p-12
+                bg-glass backdrop-blur-card border border-white/10 rounded-2xl shadow-2xl 
+                transition-opacity duration-300 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
+                <h2 className="text-sm font-bold uppercase text-accent-primary mb-4 tracking-widest">Режим обучения</h2>
+                <p className="text-2xl md:text-3xl font-light leading-relaxed text-white min-h-[150px] md:min-h-[200px]">
+                    {displayedText}
+                    {isAnimating && <span className="inline-block w-0.5 h-8 bg-white/70 ml-1 animate-ping"></span>}
+                </p>
+                <div className="mt-8">
+                    <ProgressBar current={currentIndex} total={facts.length} />
+                    <div className="text-right text-white/70 mt-2 text-sm">
+                        Факт {currentIndex + 1} из {facts.length}
+                    </div>
                 </div>
-                <div className="order-1 md:order-2 h-64 md:h-full">
-                    <img src={currentFact.image} className="w-full h-full object-cover" alt="Fact illustration" />
-                </div>
+            </div>
+             <div className="absolute bottom-8 text-white/50 text-center text-sm z-10">
+                Кликните в любом месте, чтобы продолжить...
             </div>
         </div>
     );

@@ -9,13 +9,17 @@ const QuizMode = ({ questions, onComplete, score, setScore, lives, setLives, com
 
     useEffect(() => {
         if (lives <= 0) {
-            setTimeout(() => onComplete(score), 500);
+            setTimeout(() => onComplete(score), 1000);
         }
     }, [lives, onComplete, score]);
 
     useEffect(() => {
         const question = questions[currentQuestionIndex];
-        setShuffledAnswers(question.answers.sort(() => Math.random() - 0.5));
+        if (question) {
+            setShuffledAnswers(question.answers.sort(() => Math.random() - 0.5));
+        }
+        setShowFeedback(false);
+        setSelectedAnswer(null);
     }, [currentQuestionIndex, questions]);
 
     const handleAnswerClick = (answer, index) => {
@@ -24,49 +28,67 @@ const QuizMode = ({ questions, onComplete, score, setScore, lives, setLives, com
         setSelectedAnswer(index);
         setShowFeedback(true);
 
+        let scoreUpdate = score;
         if (answer.correct) {
-            setScore(score + 100 * combo);
-            setCombo(combo + 1);
+            scoreUpdate = score + 100 * combo;
+            setScore(scoreUpdate);
+            setCombo(c => c + 1);
         } else {
-            setLives(lives - 1);
+            setLives(l => l - 1);
             setCombo(1);
         }
 
         setTimeout(() => {
-            setShowFeedback(false);
-            setSelectedAnswer(null);
             if (currentQuestionIndex < questions.length - 1) {
                 setCurrentQuestionIndex(currentQuestionIndex + 1);
             } else {
-                onComplete(score);
+                onComplete(scoreUpdate);
             }
-        }, 1200);
+        }, 1500);
     };
 
     const currentQuestion = questions[currentQuestionIndex];
 
+    if (!currentQuestion) {
+        return null; // Or a loading state
+    }
+
     return (
-        <div className="w-full">
+        <div className="w-full animate-fade-in-up">
             <UI score={score} lives={lives} combo={combo} />
-            <div className="text-center mt-8">
-                <h2 className="text-4xl font-bold mb-8 animate-fade-in">{currentQuestion.question}</h2>
-                <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center mt-8 max-w-4xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold mb-8 text-primary px-4">{currentQuestion.question}</h2>
+                <div className="grid md:grid-cols-3 gap-6 px-4">
                     {shuffledAnswers.map((answer, index) => {
                         const isSelected = selectedAnswer === index;
                         const isCorrect = answer.correct;
-                        let borderClass = 'border-transparent';
+                        
+                        let stateClass = 'border-transparent';
+                        let scaleClass = 'hover:scale-105 hover:shadow-2xl';
+                        let overlayClass = 'opacity-0';
+
                         if (showFeedback) {
-                            if (isCorrect) borderClass = 'border-green-500';
-                            else if (isSelected) borderClass = 'border-red-500';
+                            scaleClass = 'scale-100'; // Disable hover effect after selection
+                            if (isCorrect) {
+                                stateClass = 'border-accent-secondary scale-105 shadow-2xl';
+                                overlayClass = 'opacity-100 bg-accent-secondary/30';
+                            } else if (isSelected) {
+                                stateClass = 'border-danger scale-105 shadow-2xl';
+                                overlayClass = 'opacity-100 bg-danger/30';
+                            } else {
+                                stateClass = 'opacity-50 grayscale';
+                            }
                         }
 
                         return (
                             <div 
                                 key={index} 
-                                className={`bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-2xl border-4 ${borderClass}`}
+                                className={`relative bg-glass backdrop-blur-card border-4 rounded-2xl shadow-lg overflow-hidden cursor-pointer 
+                                            transition-all duration-300 ${stateClass} ${scaleClass}`}
                                 onClick={() => handleAnswerClick(answer, index)}
                             >
                                 <img src={answer.image} className="w-full h-64 object-cover" alt="Answer option" />
+                                <div className={`absolute inset-0 transition-opacity duration-300 ${overlayClass}`}></div>
                             </div>
                         );
                     })}
